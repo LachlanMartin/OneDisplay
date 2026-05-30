@@ -30,17 +30,67 @@ one-display/
 └── PLAN.md
 ```
 
+## Build Phases
+
+### Phase 1 — MVP (done)
+
+Core capture/release logic working as a CLI-executable SwiftPM target.
+
+- [x] Display detection via `CGGetOnlineDisplayList` + `CGDisplayIsBuiltin`
+- [x] Listen for `didChangeScreenParametersNotification`
+- [x] Capture built-in display with `CGDisplayCapture` when external connected
+- [x] Release with `CGDisplayRelease` when external disconnected
+- [x] Menu bar with status + Quit
+- [x] Git repo + private GitHub
+
+### Phase 2 — Proper .app Bundle
+
+Wrap the binary in a proper macOS `.app` bundle so it feels like a real app.
+
+- [ ] Add `Info.plist` with `LSUIElement` (already set in code, but bundle needs it)
+- [ ] Create app icon (`.icns` or SF Symbol–based)
+- [ ] Add a build script or `Makefile` to produce `OneDisplay.app`
+- [ ] Code sign for local development
+- [ ] Support dragging into Applications folder
+
+### Phase 3 — Auto-Launch & Persistence
+
+Make the app feel invisible and automatic.
+
+- [ ] Register as Login Item via `SMAppService` (macOS 13+)
+- [ ] Add "Launch at Login" toggle in the menu
+- [ ] Handle re-launch edge cases (already-running detection)
+
+### Phase 4 — Polish & Edge Cases
+
+Handle tricky real-world scenarios.
+
+- [ ] **Sleep/Wake**: Release capture on sleep, re-evaluate on wake
+- [ ] **Lid close (clamshell)**: Detect and don't fight macOS clamshell mode
+- [ ] **App restart after crash**: Capture state persists across launches
+- [ ] **User switches main display**: Still identifies built-in correctly
+- [ ] **Accessibility permissions**: If needed, guide user to grant them
+- [ ] **Better menu feedback**: Show count of detected displays, capture state
+
+### Phase 5 — Open Source
+
+Prepare for public release.
+
+- [ ] Add LICENSE (MIT / Apache 2.0)
+- [ ] Improve README with screenshots, usage guide, build instructions
+- [ ] Add CI (GitHub Actions: build + lint)
+- [ ] Clean up code, add doc comments
+- [ ] Toggle repo visibility to public on GitHub
+- [ ] Announce / share
+
 ## Progress
 
 - [x] Project plan
-- [ ] .gitignore
-- [ ] Package.swift
-- [ ] Sources/OneDisplay/App.swift
-- [ ] Sources/OneDisplay/MenuBarManager.swift
-- [ ] Sources/OneDisplay/DisplayMonitor.swift
-- [ ] Build & verify
-- [ ] Git init & commit
-- [ ] GitHub repo (private)
-- [ ] Future: Make public / open source
-- [ ] Future: Auto-launch via SMAppService
-- [ ] Future: App icon / proper .app bundle
+- [x] .gitignore
+- [x] Package.swift
+- [x] Sources/OneDisplay/App.swift
+- [x] Sources/OneDisplay/MenuBarManager.swift
+- [x] Sources/OneDisplay/DisplayMonitor.swift
+- [x] Build & verify
+- [x] Git init & commit
+- [x] GitHub repo (private) → https://github.com/LachlanMartin/one-display
