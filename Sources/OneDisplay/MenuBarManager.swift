@@ -38,6 +38,14 @@ class MenuBarManager {
             action: #selector(toggleLoginItem),
             keyEquivalent: ""
         )
+        loginMenuItem.target = self
+
+        let quitItem = NSMenuItem(
+            title: "Quit",
+            action: #selector(quitApp),
+            keyEquivalent: "q"
+        )
+        quitItem.target = self
 
         let menu = NSMenu()
         menu.addItem(statusMenuItem)
@@ -45,11 +53,7 @@ class MenuBarManager {
         menu.addItem(.separator())
         menu.addItem(loginMenuItem)
         menu.addItem(.separator())
-        menu.addItem(NSMenuItem(
-            title: "Quit",
-            action: #selector(quitApp),
-            keyEquivalent: "q"
-        ))
+        menu.addItem(quitItem)
 
         statusItem.menu = menu
         updateStatus()
