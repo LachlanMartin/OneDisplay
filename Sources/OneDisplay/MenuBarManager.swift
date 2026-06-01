@@ -18,10 +18,17 @@ class MenuBarManager {
         awakeImage.isTemplate = true
         sleepImage.isTemplate = true
 
+        let iconHeight: CGFloat = 18
+        for img in [awakeImage, sleepImage] {
+            let ratio = img.size.width / img.size.height
+            img.size = NSSize(width: iconHeight * ratio, height: iconHeight)
+        }
+
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
 
         if let button = statusItem.button {
             button.image = awakeImage
+            button.imageScaling = .scaleProportionallyUpOrDown
         }
 
         statusMenuItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
