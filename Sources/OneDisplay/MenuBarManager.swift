@@ -18,7 +18,7 @@ class MenuBarManager {
         awakeImage.isTemplate = true
         sleepImage.isTemplate = true
 
-        let iconHeight: CGFloat = 18
+        let iconHeight: CGFloat = 10
         for img in [awakeImage, sleepImage] {
             let ratio = img.size.width / img.size.height
             img.size = NSSize(width: iconHeight * ratio, height: iconHeight)
