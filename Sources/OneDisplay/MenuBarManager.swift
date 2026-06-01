@@ -7,12 +7,19 @@ class MenuBarManager {
     private let displayCountMenuItem: NSMenuItem
     private weak var displayMonitor: DisplayMonitor?
 
+    private let awakeImage: NSImage
+    private let sleepImage: NSImage
+
     init(displayMonitor: DisplayMonitor) {
         self.displayMonitor = displayMonitor
+
+        awakeImage = Self.loadIcon("laptop-screen-awake") ?? NSImage(systemSymbolName: "display", accessibilityDescription: "OneDisplay")!
+        sleepImage = Self.loadIcon("laptop-screen-sleep") ?? NSImage(systemSymbolName: "display", accessibilityDescription: "OneDisplay")!
+
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
 
         if let button = statusItem.button {
-            button.image = NSImage(systemSymbolName: "display", accessibilityDescription: "OneDisplay")
+            button.image = awakeImage
         }
 
         statusMenuItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
@@ -43,8 +50,25 @@ class MenuBarManager {
         }
     }
 
+    private static func loadIcon(_ name: String) -> NSImage? {
+        if let url = Bundle.main.resourceURL?.appendingPathComponent("\(name).png"),
+           FileManager.default.fileExists(atPath: url.path) {
+            return NSImage(contentsOf: url)
+        }
+        let devURL = URL(fileURLWithPath: "Resources/\(name).png")
+        if FileManager.default.fileExists(atPath: devURL.path) {
+            return NSImage(contentsOf: devURL)
+        }
+        return nil
+    }
+
     private func updateStatus() {
         guard let displayMonitor else { return }
+
+        if let button = statusItem.button {
+            button.image = displayMonitor.isCaptured ? sleepImage : awakeImage
+        }
+
         statusMenuItem.title = displayMonitor.isCaptured
             ? "OneDisplay — Capturing"
             : "OneDisplay — Monitoring"
