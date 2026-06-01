@@ -15,6 +15,8 @@ class MenuBarManager {
 
         awakeImage = Self.loadIcon("laptop-screen-awake") ?? NSImage(systemSymbolName: "display", accessibilityDescription: "OneDisplay")!
         sleepImage = Self.loadIcon("laptop-screen-sleep") ?? NSImage(systemSymbolName: "display", accessibilityDescription: "OneDisplay")!
+        awakeImage.isTemplate = true
+        sleepImage.isTemplate = true
 
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
 
