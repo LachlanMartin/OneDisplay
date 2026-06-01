@@ -1,9 +1,11 @@
 import AppKit
 import CoreGraphics
+import IOKit
 
 class DisplayMonitor {
     private let builtInDisplayID: CGDirectDisplayID
-    private var isCaptured = false
+    private(set) var isCaptured = false
+    var onStateChange: (() -> Void)?
 
     init() {
         builtInDisplayID = Self.findBuiltInDisplay()
@@ -38,6 +40,18 @@ class DisplayMonitor {
             name: NSApplication.didChangeScreenParametersNotification,
             object: nil
         )
+        NSWorkspace.shared.notificationCenter.addObserver(
+            self,
+            selector: #selector(systemWillSleep),
+            name: NSWorkspace.willSleepNotification,
+            object: nil
+        )
+        NSWorkspace.shared.notificationCenter.addObserver(
+            self,
+            selector: #selector(systemDidWake),
+            name: NSWorkspace.didWakeNotification,
+            object: nil
+        )
     }
 
     @objc private func screenParametersChanged() {
@@ -46,14 +60,50 @@ class DisplayMonitor {
         }
     }
 
+    @objc private func systemWillSleep() {
+        restore()
+    }
+
+    @objc private func systemDidWake() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            self?.evaluate()
+        }
+    }
+
+    // MARK: - Clamshell Detection
+
+    static func isLidClosed() -> Bool {
+        let service = IOServiceGetMatchingService(kIOMainPortDefault, IOServiceMatching("AppleClamshellState"))
+        guard service != 0 else { return false }
+        defer { IOObjectRelease(service) }
+        if let present = IORegistryEntryCreateCFProperty(
+            service, "ClamshellState" as CFString,
+            kCFAllocatorDefault, 0
+        )?.takeRetainedValue() as? Bool {
+            return present
+        }
+        return false
+    }
+
     // MARK: - State Evaluation
 
     func evaluate() {
-        if NSScreen.screens.count > 1, !isCaptured {
+        guard !Self.isLidClosed() else { return }
+
+        let externalCount = NSScreen.screens.filter { screen in
+            let screenID = screen.displayID
+            return screenID != builtInDisplayID
+        }.count
+
+        if externalCount > 0, !isCaptured {
             captureBuiltIn()
-        } else if NSScreen.screens.count == 1, isCaptured {
+        } else if externalCount == 0, isCaptured {
             releaseBuiltIn()
         }
+    }
+
+    var externalDisplayCount: Int {
+        NSScreen.screens.filter { $0.displayID != builtInDisplayID }.count
     }
 
     // MARK: - Capture / Release
@@ -63,6 +113,7 @@ class DisplayMonitor {
         let result = CGDisplayCapture(builtInDisplayID)
         if result == .success {
             isCaptured = true
+            onStateChange?()
         }
     }
 
@@ -71,6 +122,7 @@ class DisplayMonitor {
         let result = CGDisplayRelease(builtInDisplayID)
         if result == .success {
             isCaptured = false
+            onStateChange?()
         }
     }
 
@@ -83,5 +135,13 @@ class DisplayMonitor {
     deinit {
         restore()
         NotificationCenter.default.removeObserver(self)
+        NSWorkspace.shared.notificationCenter.removeObserver(self)
+    }
+}
+
+private extension NSScreen {
+    var displayID: CGDirectDisplayID {
+        let key = NSDeviceDescriptionKey("NSScreenNumber")
+        return (deviceDescription[key] as? NSNumber)?.uint32Value ?? 0
     }
 }

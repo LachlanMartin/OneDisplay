@@ -2,15 +2,21 @@ import AppKit
 
 class MenuBarManager {
     private let statusItem: NSStatusItem
+    private let statusMenuItem: NSMenuItem
     private let loginMenuItem: NSMenuItem
+    private let displayCountMenuItem: NSMenuItem
+    private weak var displayMonitor: DisplayMonitor?
 
-    init() {
+    init(displayMonitor: DisplayMonitor) {
+        self.displayMonitor = displayMonitor
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
 
         if let button = statusItem.button {
             button.image = NSImage(systemSymbolName: "display", accessibilityDescription: "OneDisplay")
         }
 
+        statusMenuItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
+        displayCountMenuItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
         loginMenuItem = NSMenuItem(
             title: "Launch at Login",
             action: #selector(toggleLoginItem),
@@ -18,11 +24,8 @@ class MenuBarManager {
         )
 
         let menu = NSMenu()
-        menu.addItem(NSMenuItem(
-            title: "OneDisplay — Active",
-            action: nil,
-            keyEquivalent: ""
-        ))
+        menu.addItem(statusMenuItem)
+        menu.addItem(displayCountMenuItem)
         menu.addItem(.separator())
         menu.addItem(loginMenuItem)
         menu.addItem(.separator())
@@ -33,6 +36,24 @@ class MenuBarManager {
         ))
 
         statusItem.menu = menu
+        updateStatus()
+
+        displayMonitor.onStateChange = { [weak self] in
+            self?.updateStatus()
+        }
+    }
+
+    private func updateStatus() {
+        guard let displayMonitor else { return }
+        statusMenuItem.title = displayMonitor.isCaptured
+            ? "OneDisplay — Capturing"
+            : "OneDisplay — Monitoring"
+        let externalCount = displayMonitor.externalDisplayCount
+        if externalCount > 0 {
+            displayCountMenuItem.title = "\(externalCount) external display\(externalCount == 1 ? "" : "s") connected"
+        } else {
+            displayCountMenuItem.title = "No external display"
+        }
         updateLoginItemState()
     }
 

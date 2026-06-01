@@ -17,8 +17,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var displayMonitor: DisplayMonitor?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        menuBarManager = MenuBarManager()
-        displayMonitor = DisplayMonitor()
+        let monitor = DisplayMonitor()
+        displayMonitor = monitor
+        menuBarManager = MenuBarManager(displayMonitor: monitor)
     }
 
     func applicationWillTerminate(_ notification: Notification) {
