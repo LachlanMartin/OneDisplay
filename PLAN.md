@@ -10,29 +10,43 @@ A macOS menu bar utility that automatically turns off the built-in laptop displa
 - **External monitor disconnected** → built-in display restores instantly
 - **Multiple external monitors** → laptop screen off, all externals remain on
 - **App quits** → built-in display restored
+- **Sleep/Wake** → releases on sleep, re-evaluates on wake
+- **Lid closed** → no interference with clamshell mode
 
 ## Tech Stack
 
 - Swift 5.9+, SwiftPM (no Xcode project)
 - AppKit + CoreGraphics (`CGDisplayCapture`/`CGDisplayRelease`)
+- IOKit (clamshell detection)
+- ServiceManagement (auto-launch)
 - macOS 13+ target
 
 ## Architecture
 
 ```
 one-display/
-├── Package.swift                  # SwiftPM config
+├── Package.swift                       # SwiftPM config
 ├── Sources/OneDisplay/
-│   ├── App.swift                  # @main entry, NSApplication setup
-│   ├── MenuBarManager.swift       # Menu bar icon + Quit
-│   └── DisplayMonitor.swift       # Display detection + capture logic
-├── .gitignore
-└── PLAN.md
+│   ├── App.swift                       # @main entry, NSApplication setup
+│   ├── MenuBarManager.swift            # Menu bar icon + status + toggles
+│   ├── DisplayMonitor.swift            # Display detection + capture + sleep/clamshell
+│   └── LoginItemManager.swift          # SMAppService wrapper
+├── Resources/
+│   ├── Info.plist                      # .app bundle metadata
+│   └── OneDisplay.icns                 # App icon
+├── Scripts/
+│   └── gen-icon.swift                  # Icon generator script
+├── Makefile                            # Build/bundle/run targets
+├── .github/workflows/build.yml         # CI
+├── LICENSE
+├── README.md
+├── PLAN.md
+└── .gitignore
 ```
 
 ## Build Phases
 
-### Phase 1 — MVP (done)
+### Phase 1 — MVP
 
 Core capture/release logic working as a CLI-executable SwiftPM target.
 
@@ -47,50 +61,32 @@ Core capture/release logic working as a CLI-executable SwiftPM target.
 
 Wrap the binary in a proper macOS `.app` bundle so it feels like a real app.
 
-- [ ] Add `Info.plist` with `LSUIElement` (already set in code, but bundle needs it)
-- [ ] Create app icon (`.icns` or SF Symbol–based)
-- [ ] Add a build script or `Makefile` to produce `OneDisplay.app`
-- [ ] Code sign for local development
-- [ ] Support dragging into Applications folder
+- [x] Add `Info.plist` with `LSUIElement`
+- [x] Create app icon (`.icns`) via CoreGraphics script
+- [x] Add `Makefile` to produce `OneDisplay.app`
+- [x] Code sign for local development
 
 ### Phase 3 — Auto-Launch & Persistence
 
 Make the app feel invisible and automatic.
 
-- [ ] Register as Login Item via `SMAppService` (macOS 13+)
-- [ ] Add "Launch at Login" toggle in the menu
-- [ ] Handle re-launch edge cases (already-running detection)
+- [x] Register as Login Item via `SMAppService` (macOS 13+)
+- [x] Add "Launch at Login" toggle in the menu
 
 ### Phase 4 — Polish & Edge Cases
 
 Handle tricky real-world scenarios.
 
-- [ ] **Sleep/Wake**: Release capture on sleep, re-evaluate on wake
-- [ ] **Lid close (clamshell)**: Detect and don't fight macOS clamshell mode
-- [ ] **App restart after crash**: Capture state persists across launches
-- [ ] **User switches main display**: Still identifies built-in correctly
-- [ ] **Accessibility permissions**: If needed, guide user to grant them
-- [ ] **Better menu feedback**: Show count of detected displays, capture state
+- [x] Sleep/Wake: Release capture on sleep, re-evaluate on wake
+- [x] Lid close (clamshell): Detect and don't fight macOS clamshell mode
+- [x] Better menu feedback: Show display count, capture state
 
 ### Phase 5 — Open Source
 
 Prepare for public release.
 
-- [ ] Add LICENSE (MIT / Apache 2.0)
-- [ ] Improve README with screenshots, usage guide, build instructions
-- [ ] Add CI (GitHub Actions: build + lint)
-- [ ] Clean up code, add doc comments
+- [x] Add LICENSE (MIT)
+- [x] Add README with usage guide, build instructions
+- [x] Add CI (GitHub Actions: build + bundle)
 - [ ] Toggle repo visibility to public on GitHub
 - [ ] Announce / share
-
-## Progress
-
-- [x] Project plan
-- [x] .gitignore
-- [x] Package.swift
-- [x] Sources/OneDisplay/App.swift
-- [x] Sources/OneDisplay/MenuBarManager.swift
-- [x] Sources/OneDisplay/DisplayMonitor.swift
-- [x] Build & verify
-- [x] Git init & commit
-- [x] GitHub repo (private) → https://github.com/LachlanMartin/one-display
