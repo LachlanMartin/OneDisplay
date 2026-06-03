@@ -1,10 +1,23 @@
-# OneDisplay
+<p align="center">
+  <img src="Resources/laptop-icon-input.png" alt="OneDisplay" width="128">
+</p>
 
-A macOS menu bar utility that automatically blanks your built-in laptop display when an external monitor is connected, and restores it when disconnected. No clamshell mode needed — your keyboard and trackpad still work.
+<h1 align="center">OneDisplay</h1>
+
+<p align="center">
+  <b>macOS menu bar utility — one display at a time.</b>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/macOS-13%2B-lightgrey">
+  <img src="https://img.shields.io/badge/license-MIT-blue">
+</p>
+
+Automatically blanks your built-in laptop display when an external monitor is connected, and restores it when disconnected. No clamshell mode needed — your keyboard and trackpad still work.
 
 ## How it works
 
-OneDisplay uses macOS's `CGDisplayCapture` API to take exclusive control of the built-in display, rendering it black and inactive. When the external monitor is disconnected, it releases the display and everything returns to normal.
+Uses macOS's `CGDisplayCapture` API to take exclusive control of the built-in display, rendering it black and inactive. When the external monitor is disconnected, it releases the display and everything returns to normal.
 
 ## Features
 
@@ -24,26 +37,24 @@ OneDisplay uses macOS's `CGDisplayCapture` API to take exclusive control of the 
 
 ### Download
 
-Download the latest release from the [Releases](https://github.com/LachlanMartin/one-display/releases) page.
+Download the latest release from the [Releases](https://github.com/LachlanMartin/OneDisplay/releases) page, or build from source.
 
 ### Build from source
 
 ```bash
-git clone https://github.com/LachlanMartin/one-display.git
+git clone https://github.com/LachlanMartin/OneDisplay.git
 cd one-display
 make run
 ```
 
 This builds the release binary, creates `OneDisplay.app`, and opens it.
 
-The app will appear in your menu bar with a display icon.
-
 ## Usage
 
 1. Launch OneDisplay — it lives in your menu bar
 2. Plug in an external monitor — the laptop screen goes black
 3. Unplug the external monitor — the laptop screen comes back
-4. Click the menu bar icon to Quit or toggle Launch at Login
+4. Click the menu bar icon to Quit, toggle Launch at Login, or Hide the icon
 
 ## Build
 
@@ -51,7 +62,7 @@ The app will appear in your menu bar with a display icon.
 make build     # Build the Swift binary
 make bundle    # Build + create .app bundle
 make run       # Build + bundle + launch
-make icon      # Regenerate the app icon
+make icon      # Regenerate the app icon from Resources/laptop-icon-input.png
 make clean     # Remove build artifacts
 ```
 
