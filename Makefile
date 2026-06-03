@@ -19,8 +19,7 @@ bundle: build
 	cp "$(BIN_PATH)/$(APP_NAME)" $(APP_BUNDLE)/Contents/MacOS/
 	cp $(RESOURCES_DIR)/Info.plist $(APP_BUNDLE)/Contents/
 	cp $(RESOURCES_DIR)/OneDisplay.icns $(APP_BUNDLE)/Contents/Resources/
-	cp $(RESOURCES_DIR)/laptop-screen-awake.png $(APP_BUNDLE)/Contents/Resources/
-	cp $(RESOURCES_DIR)/laptop-screen-sleep.png $(APP_BUNDLE)/Contents/Resources/
+	cp $(RESOURCES_DIR)/laptop-icon-input.png $(APP_BUNDLE)/Contents/Resources/
 	codesign --force --deep --sign - $(APP_BUNDLE)
 
 icon:

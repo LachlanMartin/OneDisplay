@@ -9,22 +9,17 @@ class MenuBarManager {
     private let menu: NSMenu
     private weak var displayMonitor: DisplayMonitor?
 
-    private let awakeImage: NSImage
-    private let sleepImage: NSImage
+    private let icon: NSImage
 
     init(displayMonitor: DisplayMonitor) {
         self.displayMonitor = displayMonitor
 
-        awakeImage = Self.loadIcon("laptop-screen-awake") ?? NSImage(systemSymbolName: "display", accessibilityDescription: "OneDisplay")!
-        sleepImage = Self.loadIcon("laptop-screen-sleep") ?? NSImage(systemSymbolName: "display", accessibilityDescription: "OneDisplay")!
-        awakeImage.isTemplate = true
-        sleepImage.isTemplate = true
+        icon = Self.loadIcon("laptop-icon-input") ?? NSImage(systemSymbolName: "display", accessibilityDescription: "OneDisplay")!
+        icon.isTemplate = true
 
         let iconHeight: CGFloat = 10
-        for img in [awakeImage, sleepImage] {
-            let ratio = img.size.width / img.size.height
-            img.size = NSSize(width: iconHeight * ratio, height: iconHeight)
-        }
+        let ratio = icon.size.width / icon.size.height
+        icon.size = NSSize(width: iconHeight * ratio, height: iconHeight)
 
         statusMenuItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
         displayCountMenuItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
@@ -48,6 +43,7 @@ class MenuBarManager {
         hideMenuItem.target = self
         loginMenuItem.target = self
         quitItem.target = self
+
         menu.addItem(statusMenuItem)
         menu.addItem(displayCountMenuItem)
         menu.addItem(.separator())
@@ -67,7 +63,7 @@ class MenuBarManager {
     private func createStatusItem() {
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         if let button = item.button {
-            button.image = awakeImage
+            button.image = icon
             button.imageScaling = .scaleProportionallyUpOrDown
         }
         item.menu = menu
@@ -94,10 +90,6 @@ class MenuBarManager {
 
     private func updateStatus() {
         guard let displayMonitor else { return }
-
-        if let button = statusItem?.button {
-            button.image = displayMonitor.isCaptured ? sleepImage : awakeImage
-        }
 
         statusMenuItem.title = displayMonitor.isCaptured
             ? "OneDisplay — Capturing"
