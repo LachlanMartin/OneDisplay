@@ -88,5 +88,4 @@ Prepare for public release.
 - [x] Add LICENSE (MIT)
 - [x] Add README with usage guide, build instructions
 - [x] Add CI (GitHub Actions: build + bundle)
-- [ ] Toggle repo visibility to public on GitHub
-- [ ] Announce / share
+- [x] Toggle repo visibility to public on GitHub
