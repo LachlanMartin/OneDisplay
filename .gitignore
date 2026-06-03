@@ -5,3 +5,4 @@ DerivedData/
 *.app
 .build
 OneDisplay.iconset/
+*.zip

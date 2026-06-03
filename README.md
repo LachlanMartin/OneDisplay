@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="Resources/laptop-icon-input.png" alt="OneDisplay" width="128">
+  <img src="Resources/app-icon.png" alt="OneDisplay" width="128">
 </p>
 
 <h1 align="center">OneDisplay</h1>
