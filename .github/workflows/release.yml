@@ -1,0 +1,46 @@
+# SPDX-License-Identifier: MIT
+
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: macos-14
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+
+      - name: Import Developer ID certificate
+        env:
+          CERT_BASE64: ${{ secrets.DEVELOPER_ID_CERT }}
+          CERT_PASSWORD: ${{ secrets.DEVELOPER_ID_CERT_PASSWORD }}
+        run: |
+          # Import into a temporary keychain so it doesn't pollute the login keychain
+          echo "$CERT_BASE64" | base64 --decode > /tmp/cert.p12
+          security create-keychain -p temp temp.keychain
+          security unlock-keychain -p temp temp.keychain
+          security import /tmp/cert.p12 -k temp.keychain -P "$CERT_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k temp temp.keychain
+          security default-keychain -s temp.keychain
+          rm -f /tmp/cert.p12
+
+      - name: Build, sign, DMG, notarize, staple
+        env:
+          DEV_ID: ${{ secrets.DEVELOPER_ID }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+        run: make release
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: OneDisplay-*.dmg
+          generate_release_notes: true

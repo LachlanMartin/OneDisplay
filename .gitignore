@@ -6,3 +6,5 @@ DerivedData/
 .build
 OneDisplay.iconset/
 *.zip
+dist/
+*.dmg
