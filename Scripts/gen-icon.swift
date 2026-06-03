@@ -14,7 +14,6 @@ func createIcon(size: Int, scale: Int) -> Data? {
     let w = size * scale
     let h = size * scale
 
-    // Load source image and scale it
     guard let source = CGImageSourceCreateWithURL(
         URL(fileURLWithPath: "Resources/laptop-icon-input.png") as CFURL, nil
     ) else { return nil }
@@ -32,7 +31,22 @@ func createIcon(size: Int, scale: Int) -> Data? {
         bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
     )!
     context.interpolationQuality = .high
-    context.draw(original, in: CGRect(x: 0, y: 0, width: w, height: h))
+
+    // Dark rounded rect background
+    let corner = CGFloat(w) * 0.2
+    let bgRect = CGRect(x: 0, y: 0, width: w, height: h)
+    let bgPath = CGPath(roundedRect: bgRect, cornerWidth: corner, cornerHeight: corner, transform: nil)
+    context.addPath(bgPath)
+    context.setFillColor(CGColor(srgbRed: 0.05, green: 0.05, blue: 0.08, alpha: 1))
+    context.fillPath()
+
+    // Draw icon in white using the input image as a mask
+    let iconRect = CGRect(x: 0, y: 0, width: w, height: h)
+    context.saveGState()
+    context.clip(to: iconRect, mask: original)
+    context.setFillColor(CGColor(srgbRed: 1, green: 1, blue: 1, alpha: 1))
+    context.fill(iconRect)
+    context.restoreGState()
 
     guard let cgImage = context.makeImage() else { return nil }
 

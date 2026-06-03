@@ -9,17 +9,14 @@ class MenuBarManager {
     private let menu: NSMenu
     private weak var displayMonitor: DisplayMonitor?
 
-    private let icon: NSImage
+    private var icon: NSImage
 
     init(displayMonitor: DisplayMonitor) {
         self.displayMonitor = displayMonitor
 
         icon = Self.loadIcon("laptop-icon-input") ?? NSImage(systemSymbolName: "display", accessibilityDescription: "OneDisplay")!
         icon.isTemplate = true
-
-        let iconHeight: CGFloat = 10
-        let ratio = icon.size.width / icon.size.height
-        icon.size = NSSize(width: iconHeight * ratio, height: iconHeight)
+        icon.size = NSSize(width: 18, height: 18)
 
         statusMenuItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
         displayCountMenuItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
