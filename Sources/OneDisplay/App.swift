@@ -22,6 +22,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         menuBarManager = MenuBarManager(displayMonitor: monitor)
     }
 
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows: Bool) -> Bool {
+        menuBarManager?.restoreIfNeeded()
+        return false
+    }
+
     func applicationWillTerminate(_ notification: Notification) {
         displayMonitor?.restore()
     }

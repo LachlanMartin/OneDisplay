@@ -6,6 +6,7 @@ class MenuBarManager {
     private let hideMenuItem: NSMenuItem
     private let loginMenuItem: NSMenuItem
     private let displayCountMenuItem: NSMenuItem
+    private let menu: NSMenu
     private weak var displayMonitor: DisplayMonitor?
 
     private let awakeImage: NSImage
@@ -37,17 +38,16 @@ class MenuBarManager {
             action: #selector(toggleLoginItem),
             keyEquivalent: ""
         )
-        hideMenuItem.target = self
-        loginMenuItem.target = self
-
         let quitItem = NSMenuItem(
             title: "Quit",
             action: #selector(quitApp),
             keyEquivalent: "q"
         )
-        quitItem.target = self
 
-        let menu = NSMenu()
+        menu = NSMenu()
+        hideMenuItem.target = self
+        loginMenuItem.target = self
+        quitItem.target = self
         menu.addItem(statusMenuItem)
         menu.addItem(displayCountMenuItem)
         menu.addItem(.separator())
@@ -56,7 +56,7 @@ class MenuBarManager {
         menu.addItem(.separator())
         menu.addItem(quitItem)
 
-        createStatusItem(menu: menu)
+        createStatusItem()
         updateStatus()
 
         displayMonitor.onStateChange = { [weak self] in
@@ -64,7 +64,7 @@ class MenuBarManager {
         }
     }
 
-    private func createStatusItem(menu: NSMenu) {
+    private func createStatusItem() {
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         if let button = item.button {
             button.image = awakeImage
@@ -72,6 +72,12 @@ class MenuBarManager {
         }
         item.menu = menu
         statusItem = item
+    }
+
+    func restoreIfNeeded() {
+        guard statusItem == nil else { return }
+        createStatusItem()
+        updateStatus()
     }
 
     private static func loadIcon(_ name: String) -> NSImage? {
@@ -118,8 +124,11 @@ class MenuBarManager {
         guard let item = statusItem else { return }
         NSStatusBar.system.removeStatusItem(item)
         statusItem = nil
-        hideMenuItem.title = "Icon Hidden (relaunch to show)"
-        hideMenuItem.action = nil
+
+        let alert = NSAlert()
+        alert.messageText = "Icon Hidden"
+        alert.informativeText = "Open OneDisplay.app again to restore the menu bar icon."
+        alert.runModal()
     }
 
     @objc private func quitApp() {
