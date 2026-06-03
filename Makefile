@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 APP_NAME = OneDisplay
 BUNDLE_ID = com.lachlanmartin.onedisplay
 RESOURCES_DIR = Resources

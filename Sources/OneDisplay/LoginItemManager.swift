@@ -1,6 +1,11 @@
+// SPDX-License-Identifier: MIT
+
 import ServiceManagement
+import OSLog
 
 enum LoginItemManager {
+    private static let log = Logger(subsystem: Bundle.main.bundleIdentifier ?? "com.lachlanmartin.onedisplay", category: "login-item")
+
     static var isEnabled: Bool {
         get { SMAppService.mainApp.status == .enabled }
         set {
@@ -11,7 +16,7 @@ enum LoginItemManager {
                     try SMAppService.mainApp.unregister()
                 }
             } catch {
-                print("Failed to update login item: \(error)")
+                log.error("Failed to update login item: \(error, privacy: .public)")
             }
         }
     }

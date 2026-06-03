@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 import AppKit
 
 class MenuBarManager {
@@ -14,7 +16,7 @@ class MenuBarManager {
     init(displayMonitor: DisplayMonitor) {
         self.displayMonitor = displayMonitor
 
-        icon = Self.loadIcon("laptop-icon-input") ?? NSImage(systemSymbolName: "display", accessibilityDescription: "OneDisplay")!
+        icon = Self.loadIcon("laptop-icon-input") ?? Self.fallbackIcon()
         icon.isTemplate = true
         icon.size = NSSize(width: 18, height: 18)
 
@@ -71,6 +73,11 @@ class MenuBarManager {
         guard statusItem == nil else { return }
         createStatusItem()
         updateStatus()
+    }
+
+    private static func fallbackIcon() -> NSImage {
+        let img = NSImage(systemSymbolName: "display", accessibilityDescription: "OneDisplay")
+        return img ?? NSImage()
     }
 
     private static func loadIcon(_ name: String) -> NSImage? {
