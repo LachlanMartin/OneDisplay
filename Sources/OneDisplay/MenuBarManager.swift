@@ -1,8 +1,9 @@
 import AppKit
 
 class MenuBarManager {
-    private let statusItem: NSStatusItem
+    private var statusItem: NSStatusItem?
     private let statusMenuItem: NSMenuItem
+    private let hideMenuItem: NSMenuItem
     private let loginMenuItem: NSMenuItem
     private let displayCountMenuItem: NSMenuItem
     private weak var displayMonitor: DisplayMonitor?
@@ -24,20 +25,19 @@ class MenuBarManager {
             img.size = NSSize(width: iconHeight * ratio, height: iconHeight)
         }
 
-        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-
-        if let button = statusItem.button {
-            button.image = awakeImage
-            button.imageScaling = .scaleProportionallyUpOrDown
-        }
-
         statusMenuItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
         displayCountMenuItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
+        hideMenuItem = NSMenuItem(
+            title: "Hide Menu Bar Icon",
+            action: #selector(hideIcon),
+            keyEquivalent: ""
+        )
         loginMenuItem = NSMenuItem(
             title: "Launch at Login",
             action: #selector(toggleLoginItem),
             keyEquivalent: ""
         )
+        hideMenuItem.target = self
         loginMenuItem.target = self
 
         let quitItem = NSMenuItem(
@@ -52,15 +52,26 @@ class MenuBarManager {
         menu.addItem(displayCountMenuItem)
         menu.addItem(.separator())
         menu.addItem(loginMenuItem)
+        menu.addItem(hideMenuItem)
         menu.addItem(.separator())
         menu.addItem(quitItem)
 
-        statusItem.menu = menu
+        createStatusItem(menu: menu)
         updateStatus()
 
         displayMonitor.onStateChange = { [weak self] in
             self?.updateStatus()
         }
+    }
+
+    private func createStatusItem(menu: NSMenu) {
+        let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        if let button = item.button {
+            button.image = awakeImage
+            button.imageScaling = .scaleProportionallyUpOrDown
+        }
+        item.menu = menu
+        statusItem = item
     }
 
     private static func loadIcon(_ name: String) -> NSImage? {
@@ -78,7 +89,7 @@ class MenuBarManager {
     private func updateStatus() {
         guard let displayMonitor else { return }
 
-        if let button = statusItem.button {
+        if let button = statusItem?.button {
             button.image = displayMonitor.isCaptured ? sleepImage : awakeImage
         }
 
@@ -101,6 +112,14 @@ class MenuBarManager {
     @objc private func toggleLoginItem() {
         LoginItemManager.isEnabled.toggle()
         updateLoginItemState()
+    }
+
+    @objc private func hideIcon() {
+        guard let item = statusItem else { return }
+        NSStatusBar.system.removeStatusItem(item)
+        statusItem = nil
+        hideMenuItem.title = "Icon Hidden (relaunch to show)"
+        hideMenuItem.action = nil
     }
 
     @objc private func quitApp() {
